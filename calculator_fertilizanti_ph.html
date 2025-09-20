@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator costuri fertilizanți - FotonX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f8f9fa;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 30px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      color: #2b5c2b;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 25px;
+      padding: 12px 20px;
+      background: #4CAF50;
+      color: white;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    button:hover {
+      background: #3e8e41;
+    }
+    .rezultat {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #2b5c2b;
+      text-align: center;
+      white-space: pre-line;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 15px;
+      max-height: 80px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="logo.png" alt="Logo FotonX" class="logo">
+    <h1>Calculator costuri fertilizanți</h1>
+
+    <label for="suprafata">Suprafața cultivată (hectare):</label>
+    <input type="number" id="suprafata" placeholder="ex: 10" min="0" step="0.01">
+
+    <label for="fertilizant">Tip fertilizant:</label>
+    <select id="fertilizant">
+      <option value="ureea" data-pret="3500">Ureea (3500 lei/tonă)</option>
+      <option value="npk" data-pret="4000">NPK (4000 lei/tonă)</option>
+      <option value="lithovit" data-pret="5000">Lithovit (5000 lei/tonă)</option>
+    </select>
+
+    <label for="doza">Doza aplicată (kg/ha):</label>
+    <input type="number" id="doza" placeholder="ex: 150" min="0" step="0.1">
+
+    <label for="ph">pH-ul solului:</label>
+    <input type="number" id="ph" placeholder="ex: 6.5" min="0" step="0.1">
+
+    <button onclick="calculeaza()">Calculează cost total</button>
+
+    <div class="rezultat" id="rezultat"></div>
+  </div>
+
+  <script>
+    function calculeaza() {
+      const suprafata = parseFloat(document.getElementById('suprafata').value);
+      const doza = parseFloat(document.getElementById('doza').value);
+      const ph = parseFloat(document.getElementById('ph').value);
+      const select = document.getElementById('fertilizant');
+      const pretTon = parseFloat(select.options[select.selectedIndex].dataset.pret);
+
+      if (isNaN(suprafata) || isNaN(doza) || isNaN(ph)) {
+        document.getElementById('rezultat').textContent = "Introdu corect toate valorile.";
+        return;
+      }
+
+      // calcul kg total = doza * suprafata
+      const kgTotal = doza * suprafata;
+      const tone = kgTotal / 1000;
+      const cost = tone * pretTon;
+
+      // calcul blocaj în funcție de pH
+      let procentBlocaj = 0;
+      if (ph < 7) procentBlocaj = 20; // 20% blocaj în sol acid
+      if (ph > 7) procentBlocaj = 15; // 15% blocaj în sol alcalin
+
+      const kgBlocat = kgTotal * procentBlocaj / 100;
+      const costBlocat = cost * procentBlocaj / 100;
+
+      let mesaj = `Ai nevoie de ${kgTotal.toFixed(2)} kg (${tone.toFixed(2)} tone). 
+Cost total estimat: ${cost.toFixed(2)} lei.`;
+
+      if (procentBlocaj > 0) {
+        mesaj += `\nSe estimează că ${procentBlocaj}% din îngrășământ se blochează (≈ ${kgBlocat.toFixed(2)} kg, cost ≈ ${costBlocat.toFixed(2)} lei) din cauza pH-ului ${ph}.`;
+      } else {
+        mesaj += `\nNu se estimează blocaj de îngrășământ la pH-ul ${ph}.`;
+      }
+
+      document.getElementById('rezultat').textContent = mesaj;
+    }
+  </script>
+</body>
+</html>
